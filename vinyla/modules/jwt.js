@@ -6,10 +6,10 @@ const TOKEN_EXPIRED = -3;
 const TOKEN_INVALID = -2;
 
 module.exports = {
-    sign: async (user) => {
+    sign: async ({userIdx, sns}) => {
         const payload = {
-            idx: user.curatorIdx,
-            name: user.name
+            idx: userIdx,
+            sns: sns
         };
         const result = {
             token: jwt.sign(payload, secretKey, options),

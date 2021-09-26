@@ -33,6 +33,23 @@ const user = {
             console.log('[SIGNUP] err: ' + err);
             throw err;
         }
+    },
+
+    duplicateCheck : async({nickname}) => {
+        try{
+            const sql = `SELECT COUNT(*) as cnt FROM user WHERE nickname = ?`;
+            const value = [nickname];
+            const rs = await pool.queryParam_Parse(sql, value);
+            if(rs[0].cnt == 0){
+                return true;
+            }
+            else{
+                return false;
+            }
+        } catch (err) {
+            console.log('[DUPLICATECHECK] err: ' + err);
+            throw err;
+        }
     }
 };
 

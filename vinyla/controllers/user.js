@@ -38,6 +38,15 @@ module.exports = {
     },
 
     duplicateCheck: async(req, res) => {
-
+        const {nickname} = req.body;
+        if(!nickname){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+        }
+        const isDuplicate = await UserModel.duplicateCheck(nickname);
+        if(!isDuplicate){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.ALREADY_NICKNAME));
+        }
+        
+        return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.NO_DUPLICATE, {nickname: nickname}));
     }
 };

@@ -7,5 +7,6 @@ var router = express.Router();
 // });
 
 router.use('/users', require('./users'));
+router.use('/vinyls', require('./vinyls'));
 
 module.exports = router;

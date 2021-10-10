@@ -1,6 +1,6 @@
-module.exports = (rankVO) =>{
-    rankVO = {
-        "rankIdx": rankVO.rankIdx,
-        "rankName": rankVO.rankName
+module.exports = (rankVo) =>{
+    rankVo = {
+        "rankIdx": rankVo.rankIdx,
+        "rankName": rankVo.rankName
     }
 }

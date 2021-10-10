@@ -1,7 +1,7 @@
-module.exports = (trackVO) =>{
-    trackVO = {
-        "trackIdx": trackVO.trackIdx,
-        "vinylIdx": trackVO.vinylIdx,
-        "title": trackVO.title
+module.exports = (trackVo) =>{
+    trackVo = {
+        "trackIdx": trackVo.trackIdx,
+        "vinylIdx": trackVo.vinylIdx,
+        "title": trackVo.title
     }
 }

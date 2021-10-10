@@ -1,11 +1,11 @@
-module.exports = (userVO) =>{
-    userVO = {
-        "userIdx": userVO.userIdx,
-        "nickname": userVO.nickname,
-        "profileUrl": userVO.profileUrl,
-        "instaId": userVO.instaId,
-        "rankIdx": userVO.rankIdx,
-        "vinylNum": userVO.vinylNum,
-        "sns": userVO.sns
+module.exports = (userVo) =>{
+    userVo = {
+        "userIdx": userVo.userIdx,
+        "nickname": userVo.nickname,
+        "profileUrl": userVo.profileUrl,
+        "instaId": userVo.instaId,
+        "rankIdx": userVo.rankIdx,
+        "vinylNum": userVo.vinylNum,
+        "sns": userVo.sns
     }
 }

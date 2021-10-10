@@ -1,6 +1,6 @@
-module.exports = (genreVO) =>{
-    genreVO = {
-        "genreIdx": genreVO.genreIdx,
-        "genreName": genreVO.genreName
+module.exports = (genreVo) =>{
+    genreVo = {
+        "genreIdx": genreVo.genreIdx,
+        "genreName": genreVo.genreName
     }
 }

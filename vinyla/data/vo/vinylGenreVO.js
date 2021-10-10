@@ -1,6 +1,6 @@
-module.exports = (vinylGenreVO) =>{
-    vinylGenreVO = {
-        "vinylIdx": vinylGenreVO.vinylIdx,
-        "genreIdx": vinylGenreVO.genreIdx
+module.exports = (vinylGenreVo) =>{
+    vinylGenreVo = {
+        "vinylIdx": vinylGenreVo.vinylIdx,
+        "genreIdx": vinylGenreVo.genreIdx
     }
 }

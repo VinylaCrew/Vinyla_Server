@@ -14,5 +14,6 @@ module.exports = {
     NO_USER: "존재하지 않는 회원입니다.",
 
     // Vinyl
-    DISCOGS_SEARCH_SUCCESS: "바이닐 검색 성공"
+    DISCOGS_SEARCH_SUCCESS: "바이닐 검색 성공",
+    DISCOGS_SEARCH_DETAIL_SUCCESS: "바이닐 상세 조회 성공"
 }

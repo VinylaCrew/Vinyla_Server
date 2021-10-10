@@ -11,5 +11,8 @@ module.exports = {
 
     LOGIN_SUCCESS: "로그인 성공",
     LOGIN_FAIL: "로그인 실패",
-    NO_USER: "존재하지 않는 회원입니다."
+    NO_USER: "존재하지 않는 회원입니다.",
+
+    // Vinyl
+    DISCOGS_SEARCH_SUCCESS: "바이닐 검색 성공"
 }

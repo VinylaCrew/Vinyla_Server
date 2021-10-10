@@ -4,5 +4,6 @@ const VinylController = require('../../controllers/vinyl');
 
 // router.get('/home', VinylController.home);
 router.get('/search', VinylController.search);
+router.get('/search/:id', VinylController.detail);
 
 module.exports = router;

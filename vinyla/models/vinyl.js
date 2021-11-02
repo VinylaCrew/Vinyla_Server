@@ -54,6 +54,11 @@ const vinyl = {
                         return true;
                     }
                 }).uri;
+
+                let tl = [];
+                res.tracklist.forEach(elem => { 
+                    tl.push(elem.title);                 
+                });
                 
                 let rate, rateCount;
                 findRate(id)
@@ -65,7 +70,7 @@ const vinyl = {
                         "image": primary,
                         "year": res.year,
                         "genres": res.genres,
-                        "tracklist": res.tracklist
+                        "tracklist": tl
                     });
                     if(rateRes == 0){
                         result[0].rate = 0;

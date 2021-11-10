@@ -35,7 +35,7 @@ const user = {
         }
     },
 
-    duplicateCheck : async({nickname}) => {
+    duplicateCheck : async(nickname) => {
         try{
             const sql = `SELECT COUNT(*) as cnt FROM user WHERE nickname = ?`;
             const value = [nickname];

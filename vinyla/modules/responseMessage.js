@@ -15,5 +15,7 @@ module.exports = {
 
     // Vinyl
     DISCOGS_SEARCH_SUCCESS: "바이닐 검색 성공",
-    DISCOGS_SEARCH_DETAIL_SUCCESS: "바이닐 상세 조회 성공"
+    DISCOGS_SEARCH_FAIL: "바이닐 검색 실패",
+    DISCOGS_SEARCH_DETAIL_SUCCESS: "바이닐 상세 조회 성공",
+    DISCOGS_SEARCH_DETAIL_FAIL: "바이닐 상세 조회 실패"
 }

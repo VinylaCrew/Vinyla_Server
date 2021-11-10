@@ -8,10 +8,12 @@ module.exports = {
                 const connection = await pool.getConnection();
                 try {
                     const result = await connection.query(query);
-                    pool.releaseConnection(connection);
+                    // pool.releaseConnection(connection);
+                    connection.release();
                     resolve(result);
                 } catch (err) {
-                    pool.releaseConnection(connection);
+                    // pool.releaseConnection(connection);
+                    connection.release();
                     reject(err);
                 }
             } catch (err) {
@@ -26,10 +28,12 @@ module.exports = {
                 const connection = await pool.getConnection();
                 try {
                     const result = await connection.query(query, value);
-                    pool.releaseConnection(connection);
+                    // pool.releaseConnection(connection);
+                    connection.release();
                     resolve(result);
                 } catch (err) {
-                    pool.releaseConnection(connection);
+                    // pool.releaseConnection(connection);
+                    connection.release();
                     reject(err);
                 }
             } catch (err) {
@@ -51,7 +55,8 @@ module.exports = {
                 }
                 console.log(queryError);
             }
-            pool.releaseConnection(connection);
+            connection.release();
+            // pool.releaseConnection(connection);
         } catch (connectionError) {
             console.log(connectionError);   
         }
@@ -72,11 +77,13 @@ module.exports = {
                     await connection.beginTransaction();
                     args.forEach(async (it) => await it(connection));
                     await connection.commit();
-                    pool.releaseConnection(connection);
+                    // pool.releaseConnection(connection);
+                    connection.release();
                     resolve(result);
                 } catch (err) {
                     await connection.rollback()
-                    pool.releaseConnection(connection);
+                    // pool.releaseConnection(connection);
+                    connection.release();
                     reject(err);
                 }
             } catch (err) {

@@ -29,5 +29,17 @@ module.exports = {
         } catch(err){
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.DISCOGS_SEARCH_DETAIL_FAIL));
         }
+    },
+
+    home: async(req, res) => {
+        const userIdx = req.params.userIdx; // 일단 user id, 추후 토큰으로 교체
+        
+        try{
+            const homeResult = await VinylModel.home(userIdx);
+            return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.HOME_SUCCESS, homeResult));
+        } catch(err) {
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.HOME_FAIL));
+        }
+        
     }
 };

@@ -7,6 +7,11 @@ const VinylModel = require('../models/vinyl');
 module.exports = {
     search: async(req, res) => {
         const q = req.query.q;
+        const userIdx = (await req.decoded).valueOf(0).idx;
+        console.log(userIdx);
+        if(!userIdx){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
+        }
         if(!q){
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
         }
@@ -20,6 +25,10 @@ module.exports = {
 
     detail: async(req, res) => {
         const id = req.params.id;
+        const userIdx = (await req.decoded).valueOf(0).idx;
+        if(!userIdx){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
+        }
         if(!id){
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
         }
@@ -32,8 +41,10 @@ module.exports = {
     },
 
     home: async(req, res) => {
-        const userIdx = req.params.userIdx; // 일단 user id, 추후 토큰으로 교체
-        
+        const userIdx = (await req.decoded).valueOf(0).idx;
+        if(!userIdx){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
+        }
         try{
             const homeResult = await VinylModel.home(userIdx);
             return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.HOME_SUCCESS, homeResult));

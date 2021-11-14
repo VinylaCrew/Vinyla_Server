@@ -9,7 +9,6 @@ const user = {
             const sql = `SELECT userIdx FROM user WHERE nickname = ? AND sns = ?`;
             const values = [nickname, sns];
             const rs = await pool.queryParam_Parse(sql, values);
-            console.log(rs);
             return rs;
         } catch (err){
             console.log('[SIGNIN] err: ' + err);

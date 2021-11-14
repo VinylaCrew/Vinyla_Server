@@ -73,7 +73,6 @@ const vinyl = {
             });
             result[0].rate = rate;
             result[0].rateCount = rateCount;
-            console.log(result);
             result.map(vinylSearchDetailDto);
             return result[0];
         }
@@ -82,26 +81,7 @@ const vinyl = {
             throw err;
         }
 
-        async function findRate(id){
-            const rateInfo = [];
-            try{
-                const sql = `SELECT rate, rateCount FROM vinyl WHERE id = ?`;
-                const value = [id];
-                const rs = await pool.queryParam_Parse(sql, value);
-                if(rs[0]){
-                    rateInfo.push(rs[0].rate);
-                    rateInfo.push(rs[0].rateCount);
-                }
-                else{
-                    rateInfo.push(0);
-                    rateInfo.push(0);
-                }
-                return rateInfo;
-            } catch(err) {
-                console.log('[SEARCHDETAILRATE] err: ' + err);
-                throw err;
-            }
-        }
+        
     },
 
     home: async(userIdx) => {
@@ -163,6 +143,99 @@ const vinyl = {
             console.log('[HOME] err: ' + err);
             throw err;
         }
+    },
+
+    save: async(newVinylInfo) => {
+        const {
+            id,
+            title,
+            artist,
+            image,
+            year,
+            genres,
+            tracklist,
+            rate,
+            comment
+        } = newVinylInfo;
+
+        let vinylIdx = await findVinyl(id);
+
+        // if) DB(vinyl)에 없으면
+        if(!vinylIdx){
+            // vinyl에 새로 추가
+            const query = `INSERT INTO vinyl(title, imageUrl, artist, rate, rateCount, id, year) VALUES(?, ?, ?, ?, ?, ?, ?)`;
+            const values = [title, image, artist, rate, 1, id, year];
+            const rs = await pool.queryParam_Parse(query, values);
+
+            vinylIdx = rs.insertId;
+            console.log("new vinyl! ", vinylIdx);
+            
+            // track 추가
+            for(track in tracklist){
+                const query2 = `INSERT INTO track(vinylIdx, title) VALUES(?, ?)`;
+                const values2 = [vinylIdx, track];
+                const rs2 = await pool.queryParam_Parse(query2, values2);
+            }
+            
+            console.log("tracklist push finish");
+        }
+        
+        // else) DB에 있으면
+        else{
+            // vinyl의 rate 정보 업데이트
+            const query = `UPDATE vinyl SET rate = ?, rateCount = rateCount+1 WHERE vinylIdx = ?`;
+            const value = [rate, vinylIdx];
+            const rs = await pool.queryParam_Parse(query, value);
+
+        }
+        
+        // user_vinyl에 추가
+
+        // 지금꺼 장르들 genre 에서 찾아서 user_genre에 추가 (genreNum 업데이트)
+        // vinyl_genre 추가
+
+        // user 에 vinylNum 업데이트 + rank 정보 업데이트
+
+        
+
+    }
+};
+
+async function findRate(id){
+    const rateInfo = [];
+    try{
+        const sql = `SELECT rate, rateCount FROM vinyl WHERE id = ?`;
+        const value = [id];
+        const rs = await pool.queryParam_Parse(sql, value);
+        if(rs[0]){
+            rateInfo.push(rs[0].rate);
+            rateInfo.push(rs[0].rateCount);
+        }
+        else{
+            rateInfo.push(0);
+            rateInfo.push(0);
+        }
+        return rateInfo;
+    } catch(err) {
+        console.log('[SEARCHDETAILRATE] err: ' + err);
+        throw err;
+    }
+};
+
+async function findVinyl(id){
+    // id = 2726;
+    try{
+        const query = `SELECT vinylIdx FROM vinyl WHERE id = ?`;
+        const value = [id];
+        const rs = await pool.queryParam_Parse(query, value);
+        if(rs[0]){
+            return rs[0].vinyIdx;
+        }
+        else{
+            return 0;
+        }
+    } catch(err) {
+        
     }
 };
 

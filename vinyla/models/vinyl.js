@@ -81,26 +81,7 @@ const vinyl = {
             throw err;
         }
 
-        async function findRate(id){
-            const rateInfo = [];
-            try{
-                const sql = `SELECT rate, rateCount FROM vinyl WHERE id = ?`;
-                const value = [id];
-                const rs = await pool.queryParam_Parse(sql, value);
-                if(rs[0]){
-                    rateInfo.push(rs[0].rate);
-                    rateInfo.push(rs[0].rateCount);
-                }
-                else{
-                    rateInfo.push(0);
-                    rateInfo.push(0);
-                }
-                return rateInfo;
-            } catch(err) {
-                console.log('[SEARCHDETAILRATE] err: ' + err);
-                throw err;
-            }
-        }
+        
     },
 
     home: async(userIdx) => {
@@ -220,6 +201,27 @@ const vinyl = {
     }
 };
 
+async function findRate(id){
+    const rateInfo = [];
+    try{
+        const sql = `SELECT rate, rateCount FROM vinyl WHERE id = ?`;
+        const value = [id];
+        const rs = await pool.queryParam_Parse(sql, value);
+        if(rs[0]){
+            rateInfo.push(rs[0].rate);
+            rateInfo.push(rs[0].rateCount);
+        }
+        else{
+            rateInfo.push(0);
+            rateInfo.push(0);
+        }
+        return rateInfo;
+    } catch(err) {
+        console.log('[SEARCHDETAILRATE] err: ' + err);
+        throw err;
+    }
+};
+
 async function findVinyl(id){
     // id = 2726;
     try{
@@ -235,6 +237,6 @@ async function findVinyl(id){
     } catch(err) {
         
     }
-}
+};
 
 module.exports = vinyl;

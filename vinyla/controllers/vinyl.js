@@ -40,6 +40,12 @@ module.exports = {
         } catch(err) {
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.HOME_FAIL));
         }
-        
+    },
+
+    save: async(req, res) => {
+        const newVinylInfo = req.body;
+        // console.log(newVinylInfo);
+        const saveResult = await VinylModel.save(newVinylInfo);
+        return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.DISCOGS_SEARCH_DETAIL_SUCCESS, saveResult));
     }
 };

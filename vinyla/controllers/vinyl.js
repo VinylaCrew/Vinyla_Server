@@ -55,8 +55,16 @@ module.exports = {
 
     save: async(req, res) => {
         const newVinylInfo = req.body;
-        // console.log(newVinylInfo);
-        const saveResult = await VinylModel.save(newVinylInfo);
-        return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.DISCOGS_SEARCH_DETAIL_SUCCESS, saveResult));
+        const userIdx = (await req.decoded).valueOf(0).idx;
+        if(!userIdx){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
+        }
+        try{
+            const saveResult = await VinylModel.save(newVinylInfo, userIdx);
+            return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.VINYL_SAVE_SUCCESS, {vinylIdx: saveResult}));
+        } catch(err) {
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.VINYL_SAVE_FAIL));
+        }
+
     }
 };

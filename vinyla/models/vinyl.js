@@ -145,7 +145,7 @@ const vinyl = {
         }
     },
 
-    save: async(newVinylInfo) => {
+    save: async(newVinylInfo, userIdx) => {
         const {
             id,
             title,
@@ -158,46 +158,127 @@ const vinyl = {
             comment
         } = newVinylInfo;
 
-        let vinylIdx = await findVinyl(id);
+        try{
+            let vinyl = await findVinyl(id);
+            let vinylIdx = vinyl.vinylIdx;
 
-        // if) DB(vinyl)에 없으면
-        if(!vinylIdx){
-            // vinyl에 새로 추가
-            const query = `INSERT INTO vinyl(title, imageUrl, artist, rate, rateCount, id, year) VALUES(?, ?, ?, ?, ?, ?, ?)`;
-            const values = [title, image, artist, rate, 1, id, year];
-            const rs = await pool.queryParam_Parse(query, values);
+            // vinyl TB에 없으면
+            if(!vinylIdx){
+                // vinyl에 새로 추가
+                const query = `INSERT INTO vinyl(title, imageUrl, artist, rate, rateCount, id, year) VALUES(?, ?, ?, ?, ?, ?, ?)`;
+                const values = [title, image, artist, rate, 1, id, year];
+                const rs = await pool.queryParam_Parse(query, values);
+                vinylIdx = rs.insertId;
+                
+                // track 추가
+                for(t in tracklist){
+                    const query2 = `INSERT INTO track(vinylIdx, title) VALUES(?, ?)`;
+                    const values2 = [vinylIdx, tracklist[t]];
+                    await pool.queryParam_Parse(query2, values2);
+                }
+                
+                // genre TB 검색해서 genreName별 genreIdx 찾기
+                for(g in genres){
+                    const query = `SELECT genreIdx FROM genre WHERE genreName = ?`;
+                    const value = [genres[g]];
+                    const rs = await pool.queryParam_Parse(query, value);
+                    const genreIdx = rs[0].genreIdx;
 
-            vinylIdx = rs.insertId;
-            console.log("new vinyl! ", vinylIdx);
-            
-            // track 추가
-            for(track in tracklist){
-                const query2 = `INSERT INTO track(vinylIdx, title) VALUES(?, ?)`;
-                const values2 = [vinylIdx, track];
-                const rs2 = await pool.queryParam_Parse(query2, values2);
+                    if(hasGenre(userIdx, genreIdx) == 0){ // user_genre 에 없으면 새로 등록
+                        const query3 = `INSERT INTO user_genre(userIdx, genreIdx, genreNum) VALUES(?, ?, ?)`;
+                        const value3 = [userIdx, genreIdx, 1];
+                        await pool.queryParam_Parse(query3, value3);
+                    }
+                    else{ // user_genre 에 있으면 업데이트
+                        const query3 = `UPDATE user_genre SET genreNum = genreNum + 1 WHERE userIdx = ? AND genreIdx = ?`;
+                        const value3 = [userIdx, genreIdx];
+                        await pool.queryParam_Parse(query3, value3);
+                    }
+
+                    // vinyl_genre TB 에 추가
+                    const query4 = `INSERT INTO vinyl_genre(vinylIdx, genreIdx) VALUES(?, ?)`;
+                    const value4 = [vinylIdx, genreIdx];
+                    await pool.queryParam_Parse(query4, value4);
+                }
+
             }
             
-            console.log("tracklist push finish");
+            // vinyl TB 에 있으면
+            else{
+                // user_vinyl에 존재하면 err. 이전에 갖고 있지 않은 바이닐이어야 함.
+                if(!hasVinyl(userIdx, vinylIdx)){
+                    // console.log(userIdx, vinylIdx);
+                    throw err;
+                }
+
+                // vinyl TB 의 rate 정보 업데이트
+                let [prevRate, prevRateCount] = await findRate(id);
+                let total = prevRate * prevRateCount;
+                total = total + rate;
+                prevRateCount = prevRateCount + 1;
+                const newRate = total / prevRateCount;
+
+                const query = `UPDATE vinyl SET rate = ?, rateCount = ? WHERE vinylIdx = ?`;
+                const value = [newRate, prevRateCount, vinylIdx];
+                await pool.queryParam_Parse(query, value);
+
+                // genre TB 검색해서 genreName별 genreIdx 찾기
+                for(g in genres){
+                    const query = `SELECT genreIdx FROM genre WHERE genreName = ?`;
+                    const value = [genres[g]];
+                    const rs = await pool.queryParam_Parse(query, value);
+                    const genreIdx = rs[0].genreIdx;
+                    const existGenre = await hasGenre(userIdx, genreIdx)
+
+                    if(existGenre.exist == 0){ // user_genre 에 없으면 새로 등록
+                        const query3 = `INSERT INTO user_genre(userIdx, genreIdx, genreNum) VALUES(?, ?, ?)`;
+                        const value3 = [userIdx, genreIdx, 1];
+                        await pool.queryParam_Parse(query3, value3);
+                    }
+                    else{ // user_genre 에 있으면 업데이트
+                        const query3 = `UPDATE user_genre SET genreNum = genreNum + 1 WHERE userIdx = ? AND genreIdx = ?`;
+                        const value3 = [userIdx, genreIdx];
+                        await pool.queryParam_Parse(query3, value3);
+                    }
+                }
+            }
+            
+            // user_vinyl TB 에 추가
+            const query = `INSERT INTO user_vinyl(userIdx, vinylIdx, myVinyl, rate, comment) VALUES(?, ?, ?, ?, ?)`;
+            const value = [userIdx, vinylIdx, 0, rate, comment];
+            await pool.queryParam_Parse(query, value);
+
+            // user TB 업데이트
+            const query2 = `UPDATE user SET rankIdx = ?, vinylNum = vinylNum + 1 WHERE userIdx = ?`;
+            const rank = await setRank(userIdx);
+            const value2 = [rank, userIdx];
+            await pool.queryParam_Parse(query2, value2);
+
+            return vinylIdx;
+
+        } catch(err){
+            console.log('[SAVEVINYL] err: ' + err);
+            throw err;
+
         }
         
-        // else) DB에 있으면
-        else{
-            // vinyl의 rate 정보 업데이트
-            const query = `UPDATE vinyl SET rate = ?, rateCount = rateCount+1 WHERE vinylIdx = ?`;
-            const value = [rate, vinylIdx];
+        
+    },
+
+    my: async(userIdx) => {
+        try{
+            const query = `SELECT userIdx, vinyl.vinylIdx, title, imageUrl, artist, id
+                           FROM vinyla.user_vinyl JOIN vinyla.vinyl
+                           WHERE user_vinyl.vinylIdx = vinyl.vinylIdx AND user_vinyl.userIdx = ?`;
+            const value = [userIdx];
             const rs = await pool.queryParam_Parse(query, value);
+            console.log(rs);
+            return rs[0];
 
+        } catch(err) {
+            console.log('[MY] err: ' + err);
+            throw err;
         }
-        
-        // user_vinyl에 추가
-
-        // 지금꺼 장르들 genre 에서 찾아서 user_genre에 추가 (genreNum 업데이트)
-        // vinyl_genre 추가
-
-        // user 에 vinylNum 업데이트 + rank 정보 업데이트
-
-        
-
     }
 };
 
@@ -217,7 +298,35 @@ async function findRate(id){
         }
         return rateInfo;
     } catch(err) {
-        console.log('[SEARCHDETAILRATE] err: ' + err);
+        console.log('[FUNC-findRate] err: ' + err);
+        throw err;
+    }
+};
+
+async function hasVinyl(userIdx, vinylIdx){
+    try{
+        const query = `SELECT * FROM user_vinyl WHERE userIdx = ? AND vinylIdx = ?`;
+        const value = [userIdx, vinylIdx];
+        const rs = await pool.queryParam_Parse(query, value);
+        if(rs[0]){
+            return true;
+        }
+        else return false;
+    } catch(err){
+        console.log('[FUNC - hasVinyl] err: ' + err);
+        throw err;
+    }
+};
+
+async function hasGenre(userIdx, genreIdx){
+    try{
+        const query2 = `SELECT IF(COUNT(*) > 0, genreNum, 0) AS exist
+                        FROM vinyla.user_genre WHERE userIdx = ? AND genreIdx = ?`;
+        const value2 = [userIdx, genreIdx];
+        const rs2 = await pool.queryParam_Parse(query2, value2);
+        return rs2[0];
+    } catch(err){
+        console.log('[FUNC - hasGenre] err: ' + err);
         throw err;
     }
 };
@@ -228,15 +337,43 @@ async function findVinyl(id){
         const query = `SELECT vinylIdx FROM vinyl WHERE id = ?`;
         const value = [id];
         const rs = await pool.queryParam_Parse(query, value);
-        if(rs[0]){
-            return rs[0].vinyIdx;
-        }
-        else{
-            return 0;
-        }
+        return rs[0];
     } catch(err) {
-        
+        console.log('[FUNC - findVinyl] err: ' + err);
+        throw err;
     }
 };
+
+async function findGenreNum(userIdx, genreIdx){
+    try{
+        const query = `SELECT genreNum FROM user_genre WHERE userIdx = ? AND genreIdx = ?`;
+        const value = [userIdx, genreIdx];
+        const rs = await pool.queryParam_Parse(query, value);
+        return rs[0];
+    } catch(err){
+        console.log('[FUNC - findGenreNum] err: ' + err);
+        throw err;
+    }
+};
+
+async function setRank(userIdx){
+    try{
+        const query = `SELECT CASE WHEN vinylNum < 2 THEN 1
+                                    WHEN vinylNum < 10 THEN 2
+                                    WHEN vinylNum < 50 THEN 3
+                                    WHEN vinylNum < 500 THEN 4
+                                    ELSE 5
+                        END AS rankIdx
+                        FROM user
+                        WHERE userIdx = ?`;
+        const value = [userIdx];
+        const rs = await pool.queryParam_Parse(query, value);
+        return rs[0].rankIdx;
+        
+    } catch(err){
+        console.log('[FUNC - setRank] err: ' + err);
+        throw err;
+    }
+}
 
 module.exports = vinyl;

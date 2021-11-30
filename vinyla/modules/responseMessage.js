@@ -20,5 +20,11 @@ module.exports = {
     DISCOGS_SEARCH_DETAIL_FAIL: "바이닐 상세 조회 실패",
 
     HOME_SUCCESS: "홈 정보 조회 성공",
-    HOME_FAIL: "홈 정보 조회 실패"
+    HOME_FAIL: "홈 정보 조회 실패",
+    
+    VINYL_SAVE_SUCCESS: "보관함에 저장 성공",
+    VINYL_SAVE_FAIL: "보관함에 저장 실패",
+
+    MY_VINYL_SUCCESS: "내 보관함 목록 조회 성공",
+    MY_VINYL_FAIL: "내 보관함 목록 조회 실패"
 }

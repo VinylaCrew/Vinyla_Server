@@ -263,6 +263,22 @@ const vinyl = {
         }
         
         
+    },
+
+    my: async(userIdx) => {
+        try{
+            const query = `SELECT userIdx, vinyl.vinylIdx, title, imageUrl, artist, id
+                           FROM vinyla.user_vinyl JOIN vinyla.vinyl
+                           WHERE user_vinyl.vinylIdx = vinyl.vinylIdx AND user_vinyl.userIdx = ?`;
+            const value = [userIdx];
+            const rs = await pool.queryParam_Parse(query, value);
+            console.log(rs);
+            return rs[0];
+
+        } catch(err) {
+            console.log('[MY] err: ' + err);
+            throw err;
+        }
     }
 };
 

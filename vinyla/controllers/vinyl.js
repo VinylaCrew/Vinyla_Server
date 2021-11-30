@@ -66,5 +66,18 @@ module.exports = {
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.VINYL_SAVE_FAIL));
         }
 
+    },
+
+    my: async(req, res) => {
+        const userIdx = (await req.decoded).valueOf(0).idx;
+        if(!userIdx){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
+        }
+        try{
+            const myResult = await VinylModel.my(userIdx);
+            return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.MY_VINYL_SUCCESS, myResult));
+        } catch(err){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.MY_VINYL_FAIL));
+        }
     }
 };

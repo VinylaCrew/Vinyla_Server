@@ -267,12 +267,20 @@ const vinyl = {
 
     my: async(userIdx) => {
         try{
-            const query = `SELECT userIdx, vinyl.vinylIdx, title, imageUrl, artist, id
+            const query = `SELECT vinyl.vinylIdx, title, imageUrl, artist, id
                            FROM vinyla.user_vinyl JOIN vinyla.vinyl
                            WHERE user_vinyl.vinylIdx = vinyl.vinylIdx AND user_vinyl.userIdx = ?`;
             const value = [userIdx];
-            const rs = await pool.queryParam_Parse(query, value);
-            return rs[0];
+            const rs = await pool.queryParam_Parse(query, 3);
+
+            const result = {};
+            result.userIdx = userIdx;
+            let myVinyls = [];
+            Promise.all(rs.map(async(elem) => {
+                myVinyls.push(elem);
+            }));
+            result.myVinyls = myVinyls;
+            return result;
 
         } catch(err) {
             console.log('[MY] err: ' + err);

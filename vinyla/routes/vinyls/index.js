@@ -7,5 +7,6 @@ router.post('/', authUtil.checkToken, VinylController.save);
 router.get('/search', authUtil.checkToken, VinylController.search);
 router.get('/search/:id', authUtil.checkToken, VinylController.detail);
 router.get('/home/', authUtil.checkToken, VinylController.home);
+router.get('/my', authUtil.checkToken, VinylController.my);
 
 module.exports = router;

@@ -160,10 +160,10 @@ const vinyl = {
 
         try{
             let vinyl = await findVinyl(id);
-            let vinylIdx = vinyl.vinylIdx;
+            let vinylIdx;
 
             // vinyl TB에 없으면
-            if(!vinylIdx){
+            if(vinyl == 0){
                 // vinyl에 새로 추가
                 const query = `INSERT INTO vinyl(title, imageUrl, artist, rate, rateCount, id, year) VALUES(?, ?, ?, ?, ?, ?, ?)`;
                 const values = [title, image, artist, rate, 1, id, year];
@@ -205,11 +205,14 @@ const vinyl = {
             
             // vinyl TB 에 있으면
             else{
+                vinylIdx = vinyl;
+
                 // user_vinyl에 존재하면 err. 이전에 갖고 있지 않은 바이닐이어야 함.
-                if(!hasVinyl(userIdx, vinylIdx)){
-                    // console.log(userIdx, vinylIdx);
+                if(hasVinyl(userIdx, vinylIdx)){
                     throw err;
                 }
+
+                // 가지고 있던 바이닐인지 체크하는거 다시. hasVinyl이랑 전체 로직 정리.
 
                 // vinyl TB 의 rate 정보 업데이트
                 let [prevRate, prevRateCount] = await findRate(id);
@@ -242,7 +245,6 @@ const vinyl = {
                     }
                 }
             }
-            
             // user_vinyl TB 에 추가
             const query = `INSERT INTO user_vinyl(userIdx, vinylIdx, myVinyl, rate, comment) VALUES(?, ?, ?, ?, ?)`;
             const value = [userIdx, vinylIdx, 0, rate, comment];
@@ -271,7 +273,7 @@ const vinyl = {
                            FROM vinyla.user_vinyl JOIN vinyla.vinyl
                            WHERE user_vinyl.vinylIdx = vinyl.vinylIdx AND user_vinyl.userIdx = ?`;
             const value = [userIdx];
-            const rs = await pool.queryParam_Parse(query, value);
+            const rs = await pool.queryParam_Parse(query, 3);
 
             const result = {};
             result.userIdx = userIdx;
@@ -312,10 +314,10 @@ async function findRate(id){
 
 async function hasVinyl(userIdx, vinylIdx){
     try{
-        const query = `SELECT * FROM user_vinyl WHERE userIdx = ? AND vinylIdx = ?`;
+        const query = `SELECT COUNT(*) AS cnt FROM user_vinyl WHERE userIdx = ? AND vinylIdx = ?`;
         const value = [userIdx, vinylIdx];
         const rs = await pool.queryParam_Parse(query, value);
-        if(rs[0]){
+        if(rs[0].cnt != 0){
             return true;
         }
         else return false;
@@ -341,10 +343,16 @@ async function hasGenre(userIdx, genreIdx){
 async function findVinyl(id){
     // id = 2726;
     try{
-        const query = `SELECT vinylIdx FROM vinyl WHERE id = ?`;
+        const query = `SELECT COUNT(*) AS cnt FROM vinyl WHERE id = ?`;
         const value = [id];
         const rs = await pool.queryParam_Parse(query, value);
-        return rs[0];
+        if(rs[0].cnt == 0){
+            return 0;
+        }
+        const query2 = `SELECT vinylIdx FROM vinyl WHERE id = ?`;
+        const value2 = [id];
+        const rs2 = await pool.queryParam_Parse(query2, value2);
+        return rs2[0].vinylIdx;
     } catch(err) {
         console.log('[FUNC - findVinyl] err: ' + err);
         throw err;

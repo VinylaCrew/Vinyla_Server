@@ -17,9 +17,6 @@ const user = {
     },
     
     signUp : async({fuid, sns, nickname, instaId, fcmToken, subscribeAgreed}) => {
-        if(sns === undefined){
-            sns = 'Google';
-        }
         try{
             const sql = `INSERT INTO user(fuid, sns, nickname, instaId, fcmToken, subscribeAgreed)
                          VALUES(?, ?, ?, ?, ?, ?)`;

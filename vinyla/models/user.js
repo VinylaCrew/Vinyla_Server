@@ -1,32 +1,30 @@
 const pool = require('../modules/pool');
 
 const user = {
-    signIn : async({nickname, sns}) => {
-        if(sns === undefined){
-            sns = 'Google';
-        }
+    signIn : async({fuid, fcmToken}) => {
         try{
-            const sql = `SELECT userIdx FROM user WHERE nickname = ? AND sns = ?`;
-            const values = [nickname, sns];
-            const rs = await pool.queryParam_Parse(sql, values);
-            return rs;
+            const sql = `UPDATE user SET fcmToken = ? WHERE fuid = ?`;
+            const value = [fcmToken, fuid];
+            await pool.queryParam_Parse(sql, value);
+            const sql2 = `SELECT userIdx, nickname, subscribeAgreed FROM user WHERE fuid = ?`;
+            const value2 = [fuid];
+            const rs2 = await pool.queryParam_Parse(sql2, value2);
+            return rs2[0];
         } catch (err){
             console.log('[SIGNIN] err: ' + err);
             throw err;
         }
-
     },
     
-    signUp : async({nickname, profileUrl, instaId, sns}) => {
+    signUp : async({fuid, sns, nickname, instaId, fcmToken, subscribeAgreed}) => {
         if(sns === undefined){
             sns = 'Google';
         }
-
         try{
-            const sql = `INSERT INTO user(nickname, profileUrl, instaId, sns) VALUES(?, ?, ?, ?)`;
-            const values = [nickname, profileUrl, instaId, sns];
+            const sql = `INSERT INTO user(fuid, sns, nickname, instaId, fcmToken, subscribeAgreed)
+                         VALUES(?, ?, ?, ?, ?, ?)`;
+            const values = [fuid, sns, nickname, instaId, fcmToken, subscribeAgreed];
             const rs = await pool.queryParam_Parse(sql, values);
-
             return rs.insertId;
         } catch (err){
             console.log('[SIGNUP] err: ' + err);

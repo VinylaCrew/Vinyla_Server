@@ -6,35 +6,32 @@ const UserModel = require('../models/user');
 
 module.exports = {
     signIn: async(req, res) => {
-        const {nickname, sns} = req.body;
-        if(!nickname){
+        const {fuid, fcmToken} = req.body;
+        if(!fuid || !fcmToken){
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
         }
-
         const user = await UserModel.signIn(req.body);
-        if(user[0] === undefined){
+        if(user === undefined){
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.NO_CONTENT, resMessage.NO_USER));
         }
-
-        const userIdx = user[0].userIdx;
-
-        const {token, _} = await jwt.sign({userIdx, sns});
-        return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.LOGIN_SUCCESS, {userIdx: userIdx, token: token}));
+        const userIdx = user.userIdx;
+        const {token, _} = await jwt.sign({userIdx, fuid});
+        return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.LOGIN_SUCCESS, 
+            {token: token, nickname: user.nickname, subscribeAgreed: user.subscribeAgreed}));
     },
 
     signUp: async(req,res) => {
-        const {nickname, profileUrl, instaId, sns} = req.body;
-        if(!nickname){
+        const {fuid, sns, nickname, instaId, fcmToken, subscribeAgreed} = req.body;
+        if(!fuid || !nickname || !fcmToken || !subscribeAgreed){
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
         }
-
         const userIdx = await UserModel.signUp(req.body);
         if (userIdx === -1) {
             return await res.status(statusCode.DB_ERROR).send(util.fail(statusCode.DB_ERROR, resMessage.DB_ERROR));
         }
-
-        const {token, _} = await jwt.sign({userIdx, sns});
-        return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.CREATE_USER, {userIdx: userIdx, token: token}));
+        const {token, _} = await jwt.sign({userIdx, fuid});
+        return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.CREATE_USER, 
+            {token: token, nickname: nickname, subscribeAgreed: subscribeAgreed}));
     },
 
     duplicateCheck: async(req, res) => {

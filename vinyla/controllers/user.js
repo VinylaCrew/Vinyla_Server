@@ -22,7 +22,10 @@ module.exports = {
 
     signUp: async(req,res) => {
         const {fuid, sns, nickname, instaId, fcmToken, subscribeAgreed} = req.body;
-        if(!fuid || !nickname || !fcmToken || !subscribeAgreed){
+        if(!fuid || !sns || !nickname || !fcmToken || subscribeAgreed == null){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+        }
+        if(sns != "Google" || sns != "Apple" || sns != "Facebook"){
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
         }
         const userIdx = await UserModel.signUp(req.body);

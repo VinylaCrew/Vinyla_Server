@@ -79,5 +79,22 @@ module.exports = {
         } catch(err){
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.MY_VINYL_FAIL));
         }
+    },
+
+    deleteVinyl: async(req, res) => {
+        const id = req.params.id;
+        const userIdx = (await req.decoded).valueOf(0).idx;
+        if(!userIdx){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
+        }
+        if(!id){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+        }
+        try{
+            await VinylModel.deleteVinyl(userIdx, id);
+            return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.DELETE_VINYL_SUCCESS, {id: id}));
+        } catch(err){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.DELETE_VINYL_FAIL));
+        }
     }
 };

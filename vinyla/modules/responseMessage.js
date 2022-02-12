@@ -26,5 +26,8 @@ module.exports = {
     VINYL_SAVE_FAIL: "보관함에 저장 실패",
 
     MY_VINYL_SUCCESS: "내 보관함 목록 조회 성공",
-    MY_VINYL_FAIL: "내 보관함 목록 조회 실패"
+    MY_VINYL_FAIL: "내 보관함 목록 조회 실패",
+
+    DELETE_VINYL_SUCCESS: "바이닐 삭제 성공",
+    DELETE_VINYL_FAIL: "바이닐 삭제 실패"
 }

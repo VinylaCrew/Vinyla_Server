@@ -209,7 +209,8 @@ const vinyl = {
                 vinylIdx = vinyl;
 
                 // user_vinyl에 존재하면 err. 이전에 갖고 있지 않은 바이닐이어야 함.
-                if(hasVinyl(userIdx, vinylIdx)){
+                const hasVinylResult = await hasVinyl(userIdx, vinylIdx);
+                if(!hasVinylResult){
                     throw err;
                 }
 
@@ -289,6 +290,58 @@ const vinyl = {
             console.log('[MY] err: ' + err);
             throw err;
         }
+    },
+
+    deleteVinyl: async(userIdx, id) => {
+        try{
+            const vinylIdx = await findVinyl(id);
+
+            // user_vinyl에서 삭제하려는 바이닐에 준 rate 찾기
+            const query = `SELECT rate FROM user_vinyl WHERE userIdx = ? AND vinylIdx = ?`;
+            const value = [userIdx, vinylIdx];
+            const result = await pool.queryParam_Parse(query, value);
+            const rate = result[0].rate;
+
+            // user_vinyl - row 삭제
+            const dQuery = `DELETE FROM user_vinyl WHERE userIdx = ? AND vinylIdx = ?`;
+            const dValue = [userIdx, vinylIdx];
+            await pool.queryParam_Parse(dQuery, dValue);
+
+            // vinyl_genre에서 삭제하려는 바이닐의 genreIdx 목록 찾기
+            const genreList = [];
+            const query2 = `SELECT genreIdx FROM vinyl_genre WHERE vinylIdx = ?`;
+            const value2 = [vinylIdx];
+            const result2 = await pool.queryParam_Parse(query2, value2);
+            Promise.all(result2.map(async(elem) => {
+                genreList.push(elem.genreIdx);
+            }));
+            console.log(genreList);
+
+            // user_genre에서 삭제하려는 바이닐의 genre 하나씩 빼기
+            for(g in genreList){
+                const query3 = `UPDATE user_genre SET genreNum = genreNum - 1 WHERE userIdx = ? AND genreIdx = ?`;
+                const value3 = [userIdx, genreList[g]];
+                await pool.queryParam_Parse(query3, value3);
+
+                // genreNum = 0이면 row 삭제
+                const query4 = `SELECT genreNum FROM user_genre WHERE userIdx = ? AND genreIdx = ?`;
+                const result4 = await pool.queryParam_Parse(query4, value3);
+                console.log(result4[0]);
+                if(result4[0].genreNum == 0){
+                    const query5 = `DELETE FROM user_genre WHERE userIdx = ? AND genreIdx = ?`;
+                    await pool.queryParam_Parse(query5, value3);
+                }
+            }
+
+            // user에서 vinylNum -1 (& setRank 다시 해주기)
+            const query6 = `UPDATE user SET vinylNum = vinylNum - 1 WHERE userIdx = ?`;
+            const value6 = [userIdx];
+            await pool.queryParam_Parse(query6, value6);
+            
+        } catch(err) {
+            console.log('[DELETEVINYL] err: ' + err);
+            throw err;
+        }
     }
 };
 
@@ -319,7 +372,8 @@ async function hasVinyl(userIdx, vinylIdx){
         const value = [userIdx, vinylIdx];
         const rs = await pool.queryParam_Parse(query, value);
         if(rs[0].cnt != 0){
-            return true;
+            // return true;
+            throw err;
         }
         else return false;
     } catch(err){

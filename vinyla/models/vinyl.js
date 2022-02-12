@@ -183,8 +183,9 @@ const vinyl = {
                     const value = [genres[g]];
                     const rs = await pool.queryParam_Parse(query, value);
                     const genreIdx = rs[0].genreIdx;
+                    const existGenre = await hasGenre(userIdx, genreIdx);
 
-                    if(hasGenre(userIdx, genreIdx) == 0){ // user_genre 에 없으면 새로 등록
+                    if(existGenre == 0){ // user_genre 에 없으면 새로 등록
                         const query3 = `INSERT INTO user_genre(userIdx, genreIdx, genreNum) VALUES(?, ?, ?)`;
                         const value3 = [userIdx, genreIdx, 1];
                         await pool.queryParam_Parse(query3, value3);
@@ -231,9 +232,9 @@ const vinyl = {
                     const value = [genres[g]];
                     const rs = await pool.queryParam_Parse(query, value);
                     const genreIdx = rs[0].genreIdx;
-                    const existGenre = await hasGenre(userIdx, genreIdx)
+                    const existGenre = await hasGenre(userIdx, genreIdx);
 
-                    if(existGenre.exist == 0){ // user_genre 에 없으면 새로 등록
+                    if(existGenre == 0){ // user_genre 에 없으면 새로 등록
                         const query3 = `INSERT INTO user_genre(userIdx, genreIdx, genreNum) VALUES(?, ?, ?)`;
                         const value3 = [userIdx, genreIdx, 1];
                         await pool.queryParam_Parse(query3, value3);
@@ -330,10 +331,10 @@ async function hasVinyl(userIdx, vinylIdx){
 async function hasGenre(userIdx, genreIdx){
     try{
         const query2 = `SELECT IF(COUNT(*) > 0, genreNum, 0) AS exist
-                        FROM vinyla.user_genre WHERE userIdx = ? AND genreIdx = ?`;
+                        FROM user_genre WHERE userIdx = ? AND genreIdx = ?`;
         const value2 = [userIdx, genreIdx];
         const rs2 = await pool.queryParam_Parse(query2, value2);
-        return rs2[0];
+        return rs2[0].exist;
     } catch(err){
         console.log('[FUNC - hasGenre] err: ' + err);
         throw err;

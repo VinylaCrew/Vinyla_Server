@@ -274,7 +274,7 @@ const vinyl = {
                            FROM vinyla.user_vinyl JOIN vinyla.vinyl
                            WHERE user_vinyl.vinylIdx = vinyl.vinylIdx AND user_vinyl.userIdx = ?`;
             const value = [userIdx];
-            const rs = await pool.queryParam_Parse(query, 3);
+            const rs = await pool.queryParam_Parse(query, value);
 
             const result = {};
             result.userIdx = userIdx;

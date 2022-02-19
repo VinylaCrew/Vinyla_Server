@@ -183,8 +183,9 @@ const vinyl = {
                     const value = [genres[g]];
                     const rs = await pool.queryParam_Parse(query, value);
                     const genreIdx = rs[0].genreIdx;
+                    const existGenre = await hasGenre(userIdx, genreIdx);
 
-                    if(hasGenre(userIdx, genreIdx) == 0){ // user_genre 에 없으면 새로 등록
+                    if(existGenre == 0){ // user_genre 에 없으면 새로 등록
                         const query3 = `INSERT INTO user_genre(userIdx, genreIdx, genreNum) VALUES(?, ?, ?)`;
                         const value3 = [userIdx, genreIdx, 1];
                         await pool.queryParam_Parse(query3, value3);
@@ -208,7 +209,8 @@ const vinyl = {
                 vinylIdx = vinyl;
 
                 // user_vinyl에 존재하면 err. 이전에 갖고 있지 않은 바이닐이어야 함.
-                if(hasVinyl(userIdx, vinylIdx)){
+                const hasVinylResult = await hasVinyl(userIdx, vinylIdx);
+                if(!hasVinylResult){
                     throw err;
                 }
 
@@ -231,9 +233,9 @@ const vinyl = {
                     const value = [genres[g]];
                     const rs = await pool.queryParam_Parse(query, value);
                     const genreIdx = rs[0].genreIdx;
-                    const existGenre = await hasGenre(userIdx, genreIdx)
+                    const existGenre = await hasGenre(userIdx, genreIdx);
 
-                    if(existGenre.exist == 0){ // user_genre 에 없으면 새로 등록
+                    if(existGenre == 0){ // user_genre 에 없으면 새로 등록
                         const query3 = `INSERT INTO user_genre(userIdx, genreIdx, genreNum) VALUES(?, ?, ?)`;
                         const value3 = [userIdx, genreIdx, 1];
                         await pool.queryParam_Parse(query3, value3);
@@ -273,7 +275,7 @@ const vinyl = {
                            FROM vinyla.user_vinyl JOIN vinyla.vinyl
                            WHERE user_vinyl.vinylIdx = vinyl.vinylIdx AND user_vinyl.userIdx = ?`;
             const value = [userIdx];
-            const rs = await pool.queryParam_Parse(query, 3);
+            const rs = await pool.queryParam_Parse(query, value);
 
             const result = {};
             result.userIdx = userIdx;
@@ -286,6 +288,56 @@ const vinyl = {
 
         } catch(err) {
             console.log('[MY] err: ' + err);
+            throw err;
+        }
+    },
+
+    deleteVinyl: async(userIdx, id) => {
+        try{
+            const vinylIdx = await findVinyl(id);
+
+            // user_vinyl에서 삭제하려는 바이닐에 준 rate 찾기
+            const query = `SELECT rate FROM user_vinyl WHERE userIdx = ? AND vinylIdx = ?`;
+            const value = [userIdx, vinylIdx];
+            const result = await pool.queryParam_Parse(query, value);
+            const rate = result[0].rate;
+
+            // user_vinyl - row 삭제
+            const dQuery = `DELETE FROM user_vinyl WHERE userIdx = ? AND vinylIdx = ?`;
+            const dValue = [userIdx, vinylIdx];
+            await pool.queryParam_Parse(dQuery, dValue);
+
+            // vinyl_genre에서 삭제하려는 바이닐의 genreIdx 목록 찾기
+            const genreList = [];
+            const query2 = `SELECT genreIdx FROM vinyl_genre WHERE vinylIdx = ?`;
+            const value2 = [vinylIdx];
+            const result2 = await pool.queryParam_Parse(query2, value2);
+            Promise.all(result2.map(async(elem) => {
+                genreList.push(elem.genreIdx);
+            }));
+
+            // user_genre에서 삭제하려는 바이닐의 genre 하나씩 빼기
+            for(g in genreList){
+                const query3 = `UPDATE user_genre SET genreNum = genreNum - 1 WHERE userIdx = ? AND genreIdx = ?`;
+                const value3 = [userIdx, genreList[g]];
+                await pool.queryParam_Parse(query3, value3);
+
+                // genreNum = 0이면 row 삭제
+                const query4 = `SELECT genreNum FROM user_genre WHERE userIdx = ? AND genreIdx = ?`;
+                const result4 = await pool.queryParam_Parse(query4, value3);
+                if(result4[0].genreNum == 0){
+                    const query5 = `DELETE FROM user_genre WHERE userIdx = ? AND genreIdx = ?`;
+                    await pool.queryParam_Parse(query5, value3);
+                }
+            }
+
+            // user에서 vinylNum -1 (& setRank 다시 해주기)
+            const query6 = `UPDATE user SET vinylNum = vinylNum - 1 WHERE userIdx = ?`;
+            const value6 = [userIdx];
+            await pool.queryParam_Parse(query6, value6);
+            
+        } catch(err) {
+            console.log('[DELETEVINYL] err: ' + err);
             throw err;
         }
     }
@@ -318,7 +370,8 @@ async function hasVinyl(userIdx, vinylIdx){
         const value = [userIdx, vinylIdx];
         const rs = await pool.queryParam_Parse(query, value);
         if(rs[0].cnt != 0){
-            return true;
+            // return true;
+            throw err;
         }
         else return false;
     } catch(err){
@@ -330,10 +383,10 @@ async function hasVinyl(userIdx, vinylIdx){
 async function hasGenre(userIdx, genreIdx){
     try{
         const query2 = `SELECT IF(COUNT(*) > 0, genreNum, 0) AS exist
-                        FROM vinyla.user_genre WHERE userIdx = ? AND genreIdx = ?`;
+                        FROM user_genre WHERE userIdx = ? AND genreIdx = ?`;
         const value2 = [userIdx, genreIdx];
         const rs2 = await pool.queryParam_Parse(query2, value2);
-        return rs2[0];
+        return rs2[0].exist;
     } catch(err){
         console.log('[FUNC - hasGenre] err: ' + err);
         throw err;

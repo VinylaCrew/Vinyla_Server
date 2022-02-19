@@ -315,7 +315,6 @@ const vinyl = {
             Promise.all(result2.map(async(elem) => {
                 genreList.push(elem.genreIdx);
             }));
-            console.log(genreList);
 
             // user_genre에서 삭제하려는 바이닐의 genre 하나씩 빼기
             for(g in genreList){
@@ -326,7 +325,6 @@ const vinyl = {
                 // genreNum = 0이면 row 삭제
                 const query4 = `SELECT genreNum FROM user_genre WHERE userIdx = ? AND genreIdx = ?`;
                 const result4 = await pool.queryParam_Parse(query4, value3);
-                console.log(result4[0]);
                 if(result4[0].genreNum == 0){
                     const query5 = `DELETE FROM user_genre WHERE userIdx = ? AND genreIdx = ?`;
                     await pool.queryParam_Parse(query5, value3);

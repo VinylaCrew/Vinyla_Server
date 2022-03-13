@@ -48,5 +48,17 @@ module.exports = {
         }
         
         return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.NO_DUPLICATE, {nickname: nickname}));
+    },
+
+    isMember: async(req, res) => {
+        const {fuid, sns} = req.body;
+        if(!fuid || !sns){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+        }
+        if(sns != "Google" && sns != "Facebook" && sns != "Apple"){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.MEMBER_CHECK_FAIL));
+        }
+        const isMember = await UserModel.isMember(fuid, sns);
+        return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.MEMBER_CHECK_SUCCESS, {isMember: isMember}));
     }
 };

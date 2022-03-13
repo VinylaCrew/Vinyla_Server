@@ -271,12 +271,11 @@ const vinyl = {
 
     my: async(userIdx) => {
         try{
-            const query = `SELECT vinyl.vinylIdx, title, imageUrl, artist, id
-                           FROM vinyla.user_vinyl JOIN vinyla.vinyl
+            const query = `SELECT vinyl.vinylIdx, title, imageUrl, artist, id, myVinyl
+                           FROM user_vinyl JOIN vinyl
                            WHERE user_vinyl.vinylIdx = vinyl.vinylIdx AND user_vinyl.userIdx = ?`;
             const value = [userIdx];
             const rs = await pool.queryParam_Parse(query, value);
-
             const result = {};
             result.userIdx = userIdx;
             let myVinyls = [];
@@ -338,6 +337,42 @@ const vinyl = {
             
         } catch(err) {
             console.log('[DELETEVINYL] err: ' + err);
+            throw err;
+        }
+    },
+
+    rep: async(userIdx, vinylIdx) => {
+        try{
+            const query = `SELECT * FROM user_vinyl WHERE userIdx = ? AND vinylIdx = ?`;
+            const value = [userIdx, vinylIdx];
+            const result = await pool.queryParam_Parse(query, value);
+            if(result[0] === undefined){
+                return -1;
+            }
+            if(result[0].myVinyl == 1){ // 1->0. 대표 바이닐 취소
+                const query2 = `UPDATE user_vinyl SET myVinyl = 0 WHERE userIdx = ? AND vinylIdx = ?`;
+                await pool.queryParam_Parse(query2, value);
+                return 0;
+            }
+            else{
+                // 0->1. 다른 바이닐 중에 대표 바이닐 설정된 게 있는지 먼저 체크.
+                const query2 = `SELECT COUNT(*) AS cnt, vinylIdx FROM user_vinyl WHERE userIdx = ? and myVinyl = 1`;
+                const value2 = [userIdx];
+                const result2 = await pool.queryParam_Parse(query2, value2);
+                if(result2[0].cnt > 1) throw err;
+                if(result2[0].cnt == 1){ // 다른게 대표면 먼저 해제. 1->0.
+                    const query3 = `UPDATE user_vinyl SET myVinyl = 0 WHERE userIdx = ? AND vinylIdx = ?`;
+                    const value3 = [userIdx, result2[0].vinylIdx];
+                    await pool.queryParam_Parse(query3, value3);
+                }
+                // 새로운 대표 바이닐 설정. 0->1.
+                const query3 = `UPDATE user_vinyl SET myVinyl = 1 WHERE userIdx = ? AND vinylIdx = ?`;
+                await pool.queryParam_Parse(query3, value);
+                return vinylIdx;
+            }
+
+        } catch (err) {
+            console.log('[REP] err: ' + err);
             throw err;
         }
     }

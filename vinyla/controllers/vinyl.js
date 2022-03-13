@@ -96,5 +96,28 @@ module.exports = {
         } catch(err){
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.DELETE_VINYL_FAIL));
         }
+    },
+
+    rep: async(req, res) => {
+        const userIdx = (await req.decoded).valueOf(0).idx;
+        const {vinylIdx} = req.body;
+        if(!userIdx){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
+        }
+        if(!vinylIdx){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+        }
+        try{
+            const repResult = await VinylModel.rep(userIdx, vinylIdx);
+            if(repResult == -1){
+                return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_VINYL));
+            }
+            if(repResult == 0){
+                return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.REP_VINYL_SUCCESS, {repVinyl: null}));
+            }
+            return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.REP_VINYL_SUCCESS, {repVinyl: repResult}));
+        } catch(err){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.REP_VINYL_FAIL));
+        }
     }
 };

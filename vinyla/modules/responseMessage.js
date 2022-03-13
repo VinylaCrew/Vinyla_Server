@@ -32,5 +32,9 @@ module.exports = {
     MY_VINYL_FAIL: "내 보관함 목록 조회 실패",
 
     DELETE_VINYL_SUCCESS: "바이닐 삭제 성공",
-    DELETE_VINYL_FAIL: "바이닐 삭제 실패"
+    DELETE_VINYL_FAIL: "바이닐 삭제 실패",
+
+    NO_VINYL: "해당 바이닐이 없습니다",
+    REP_VINYL_SUCCESS: "대표 바이닐 설정 성공",
+    REP_VINYL_FAIL: "대표 바이닐 설정 실패"
 }

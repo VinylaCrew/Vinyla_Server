@@ -4,6 +4,7 @@ const VinylController = require('../../controllers/vinyl');
 const authUtil = require('../../middleware/authUtil');
 
 router.post('/', authUtil.checkToken, VinylController.save);
+router.post('/rep', authUtil.checkToken, VinylController.rep);
 router.delete('/:id', authUtil.checkToken, VinylController.deleteVinyl);
 router.get('/search', authUtil.checkToken, VinylController.search);
 router.get('/search/:id', authUtil.checkToken, VinylController.detail);

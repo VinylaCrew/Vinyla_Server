@@ -44,6 +44,22 @@ const user = {
             console.log('[DUPLICATECHECK] err: ' + err);
             throw err;
         }
+    },
+
+    isMember : async(fuid, sns) => {
+        try{
+            const sql = `SELECT COUNT(*) AS cnt FROM user WHERE fuid = ? AND sns = ?`;
+            const value = [fuid, sns];
+            const rs = await pool.queryParam_Parse(sql, value);
+            if(rs[0].cnt > 0){
+                return true;
+            } else {
+                return false;
+            }
+        } catch (err) {
+            console.log('[ISMEMBER] err: ' + err);
+            throw err;
+        }
     }
 };
 

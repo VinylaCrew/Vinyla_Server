@@ -1,5 +1,4 @@
 const pool = require('../modules/pool');
-const request = require('request');
 const discogsKey = require('../config/discogsKey');
 const Discogs = require('disconnect').Client;
 const vinylSearchDto = require('../data/dto/vinylSearchDto');
@@ -7,7 +6,6 @@ const vinylSearchDetailDto = require('../data/dto/vinylSearchDetailDto');
 const vinylVO = require('../data/vo/vinylVO');
 const userVO = require('../data/vo/userVO');
 const rankVO = require('../data/vo/rankVO');
-// const { catch } = require('../config/database');
 
 const vinyl = {
     search: async(q) => {

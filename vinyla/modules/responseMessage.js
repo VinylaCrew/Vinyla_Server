@@ -37,5 +37,11 @@ module.exports = {
 
     NO_VINYL: "해당 바이닐이 없습니다",
     REP_VINYL_SUCCESS: "대표 바이닐 설정 성공",
-    REP_VINYL_FAIL: "대표 바이닐 설정 실패"
+    REP_VINYL_FAIL: "대표 바이닐 설정 실패",
+
+    // Request
+    UNSUPPORTED_TYPE: "지원하지 않는 타입입니다.",
+
+    REQUEST_NEW_VINYL_SUCCESS: "바이닐 요청하기 성공",
+    REQUEST_NEW_VINYL_FAIL: "바이닐 요청하기 실패"
 }

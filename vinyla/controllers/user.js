@@ -42,6 +42,10 @@ module.exports = {
         if(!nickname){
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
         }
+        const regex = /^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|]+$/;
+        if(nickname.length < 2 || nickname.length > 20 || !regex.test(nickname)){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.INVALID_NICKNAME));
+        }
         const isDuplicate = await UserModel.duplicateCheck(nickname);
         if(!isDuplicate){
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.ALREADY_NICKNAME));

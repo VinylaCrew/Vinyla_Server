@@ -7,6 +7,7 @@ module.exports = {
     DELETE_USER: "회원 탈퇴 성공",
     
     ALREADY_NICKNAME: "사용 중인 닉네임입니다.",
+    INVALID_NICKNAME: "올바르지 않은 형식입니다.",
     NO_DUPLICATE: "사용 가능한 닉네임입니다.",
 
     LOGIN_SUCCESS: "로그인 성공",

@@ -8,7 +8,7 @@ router.post('/rep', authUtil.checkToken, VinylController.rep);
 router.delete('/:id', authUtil.checkToken, VinylController.deleteVinyl);
 router.get('/search', authUtil.checkToken, VinylController.search);
 router.get('/search/:id', authUtil.checkToken, VinylController.detail);
-router.get('/home/', authUtil.checkToken, VinylController.home);
+router.get('/home', authUtil.checkToken, VinylController.home);
 router.get('/my', authUtil.checkToken, VinylController.my);
 
 module.exports = router;

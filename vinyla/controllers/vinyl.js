@@ -113,7 +113,7 @@ module.exports = {
                 return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_VINYL));
             }
             if(repResult == 0){
-                return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.REP_VINYL_SUCCESS, {repVinyl: null}));
+                return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.REP_VINYL_CANCELED, {repVinyl: vinylIdx}));
             }
             return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.REP_VINYL_SUCCESS, {repVinyl: repResult}));
         } catch(err){

@@ -17,6 +17,9 @@ module.exports = {
     MEMBER_CHECK_FAIL: "회원 여부 확인 실패",
     MEMBER_CHECK_SUCCESS: "회원 여부 확인 성공",
 
+    MYPAGE_SUCCESS: "마이페이지 조회 성공",
+    MYPAGE_FAIL: "마이페이지 조회 실패",
+
     // Vinyl
     DISCOGS_SEARCH_SUCCESS: "바이닐 검색 성공",
     DISCOGS_SEARCH_FAIL: "바이닐 검색 실패",
@@ -36,6 +39,7 @@ module.exports = {
     DELETE_VINYL_FAIL: "바이닐 삭제 실패",
 
     NO_VINYL: "해당 바이닐이 없습니다",
+    REP_VINYL_CANCELED: "대표 바이닐 취소 성공",
     REP_VINYL_SUCCESS: "대표 바이닐 설정 성공",
     REP_VINYL_FAIL: "대표 바이닐 설정 실패",
 

@@ -42,11 +42,27 @@ module.exports = {
         if(!nickname){
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
         }
+        const regex = /^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|]+$/;
+        if(nickname.length < 2 || nickname.length > 20 || !regex.test(nickname)){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.INVALID_NICKNAME));
+        }
         const isDuplicate = await UserModel.duplicateCheck(nickname);
         if(!isDuplicate){
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.ALREADY_NICKNAME));
         }
         
         return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.NO_DUPLICATE, {nickname: nickname}));
+    },
+
+    isMember: async(req, res) => {
+        const {fuid, sns} = req.body;
+        if(!fuid || !sns){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+        }
+        if(sns != "Google" && sns != "Facebook" && sns != "Apple"){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.MEMBER_CHECK_FAIL));
+        }
+        const isMember = await UserModel.isMember(fuid, sns);
+        return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.MEMBER_CHECK_SUCCESS, {isMember: isMember}));
     }
 };

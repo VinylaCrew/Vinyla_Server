@@ -7,11 +7,18 @@ module.exports = {
     DELETE_USER: "회원 탈퇴 성공",
     
     ALREADY_NICKNAME: "사용 중인 닉네임입니다.",
+    INVALID_NICKNAME: "올바르지 않은 형식입니다.",
     NO_DUPLICATE: "사용 가능한 닉네임입니다.",
 
     LOGIN_SUCCESS: "로그인 성공",
     LOGIN_FAIL: "로그인 실패",
     NO_USER: "존재하지 않는 회원입니다.",
+
+    MEMBER_CHECK_FAIL: "회원 여부 확인 실패",
+    MEMBER_CHECK_SUCCESS: "회원 여부 확인 성공",
+
+    MYPAGE_SUCCESS: "마이페이지 조회 성공",
+    MYPAGE_FAIL: "마이페이지 조회 실패",
 
     // Vinyl
     DISCOGS_SEARCH_SUCCESS: "바이닐 검색 성공",
@@ -29,5 +36,16 @@ module.exports = {
     MY_VINYL_FAIL: "내 보관함 목록 조회 실패",
 
     DELETE_VINYL_SUCCESS: "바이닐 삭제 성공",
-    DELETE_VINYL_FAIL: "바이닐 삭제 실패"
+    DELETE_VINYL_FAIL: "바이닐 삭제 실패",
+
+    NO_VINYL: "해당 바이닐이 없습니다",
+    REP_VINYL_CANCELED: "대표 바이닐 취소 성공",
+    REP_VINYL_SUCCESS: "대표 바이닐 설정 성공",
+    REP_VINYL_FAIL: "대표 바이닐 설정 실패",
+
+    // Request
+    UNSUPPORTED_TYPE: "지원하지 않는 타입입니다.",
+
+    REQUEST_NEW_VINYL_SUCCESS: "바이닐 요청하기 성공",
+    REQUEST_NEW_VINYL_FAIL: "바이닐 요청하기 실패"
 }

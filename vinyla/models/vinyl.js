@@ -252,10 +252,10 @@ const vinyl = {
             await pool.queryParam_Parse(query, value);
 
             // user TB 업데이트
-            const query2 = `UPDATE user SET rankIdx = ?, vinylNum = vinylNum + 1 WHERE userIdx = ?`;
-            const rank = await setRank(userIdx);
-            const value2 = [rank, userIdx];
+            const query2 = `UPDATE user SET vinylNum = vinylNum + 1 WHERE userIdx = ?`;
+            const value2 = [userIdx];
             await pool.queryParam_Parse(query2, value2);
+            setRank(userIdx);
 
             return vinylIdx;
 
@@ -329,6 +329,7 @@ const vinyl = {
             const query6 = `UPDATE user SET vinylNum = vinylNum - 1 WHERE userIdx = ?`;
             const value6 = [userIdx];
             await pool.queryParam_Parse(query6, value6);
+            setRank(userIdx);
             
         } catch(err) {
             console.log('[DELETEVINYL] err: ' + err);
@@ -451,17 +452,14 @@ async function findGenreNum(userIdx, genreIdx){
 
 async function setRank(userIdx){
     try{
-        const query = `SELECT CASE WHEN vinylNum < 2 THEN 1
-                                    WHEN vinylNum < 10 THEN 2
-                                    WHEN vinylNum < 50 THEN 3
-                                    WHEN vinylNum < 500 THEN 4
-                                    ELSE 5
-                        END AS rankIdx
-                        FROM user
-                        WHERE userIdx = ?`;
+        const query = `UPDATE user SET rankIdx = CASE WHEN vinylNum < 2 THEN 1
+                    WHEN vinylNum < 10 THEN 2
+                    WHEN vinylNum < 50 THEN 3
+                    WHEN vinylNum < 500 THEN 4
+                    ELSE 5 END
+                    WHERE userIdx = ?`;
         const value = [userIdx];
-        const rs = await pool.queryParam_Parse(query, value);
-        return rs[0].rankIdx;
+        await pool.queryParam_Parse(query, value);
         
     } catch(err){
         console.log('[FUNC - setRank] err: ' + err);

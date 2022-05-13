@@ -158,6 +158,7 @@ const vinyl = {
 
         try{
             let vinyl = await findVinyl(id);
+            // console.log(vinyl);
             let vinylIdx;
 
             // vinyl TB에 없으면
@@ -427,18 +428,24 @@ async function hasGenre(userIdx, genreIdx){
 };
 
 async function findVinyl(id){
-    // id = 2726;
     try{
-        const query = `SELECT COUNT(*) AS cnt FROM vinyl WHERE id = ?`;
+        const query = `SELECT a.vinylIdx FROM vinyl a LEFT JOIN vinyl b ON a.vinylIdx = b.vinylIdx WHERE b.id = ?`;
         const value = [id];
         const rs = await pool.queryParam_Parse(query, value);
-        if(rs[0].cnt == 0){
+        if(rs.length == 0){
             return 0;
         }
-        const query2 = `SELECT vinylIdx FROM vinyl WHERE id = ?`;
-        const value2 = [id];
-        const rs2 = await pool.queryParam_Parse(query2, value2);
-        return rs2[0].vinylIdx;
+        else return rs[0].vinylIdx;
+        // const query = `SELECT COUNT(*) AS cnt FROM vinyl WHERE id = ?`;
+        // const value = [id];
+        // const rs = await pool.queryParam_Parse(query, value);
+        // if(rs[0].cnt == 0){
+        //     return 0;
+        // }
+        // const query2 = `SELECT vinylIdx FROM vinyl WHERE id = ?`;
+        // const value2 = [id];
+        // const rs2 = await pool.queryParam_Parse(query2, value2);
+        // return rs2[0].vinylIdx;
     } catch(err) {
         console.log('[FUNC - findVinyl] err: ' + err);
         throw err;

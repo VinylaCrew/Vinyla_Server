@@ -158,6 +158,7 @@ const vinyl = {
 
         try{
             let vinyl = await findVinyl(id);
+            console.log(vinyl);
             let vinylIdx;
 
             // vinyl TB에 없으면
@@ -208,7 +209,7 @@ const vinyl = {
 
                 // user_vinyl에 존재하면 err. 이전에 갖고 있지 않은 바이닐이어야 함.
                 const hasVinylResult = await hasVinyl(userIdx, vinylIdx);
-                if(!hasVinylResult){
+                if(hasVinylResult){
                     throw err;
                 }
 
@@ -251,10 +252,10 @@ const vinyl = {
             await pool.queryParam_Parse(query, value);
 
             // user TB 업데이트
-            const query2 = `UPDATE user SET rankIdx = ?, vinylNum = vinylNum + 1 WHERE userIdx = ?`;
-            const rank = await setRank(userIdx);
-            const value2 = [rank, userIdx];
+            const query2 = `UPDATE user SET vinylNum = vinylNum + 1 WHERE userIdx = ?`;
+            const value2 = [userIdx];
             await pool.queryParam_Parse(query2, value2);
+            setRank(userIdx);
 
             return vinylIdx;
 
@@ -320,18 +321,15 @@ const vinyl = {
                 await pool.queryParam_Parse(query3, value3);
 
                 // genreNum = 0이면 row 삭제
-                const query4 = `SELECT genreNum FROM user_genre WHERE userIdx = ? AND genreIdx = ?`;
-                const result4 = await pool.queryParam_Parse(query4, value3);
-                if(result4[0].genreNum == 0){
-                    const query5 = `DELETE FROM user_genre WHERE userIdx = ? AND genreIdx = ?`;
-                    await pool.queryParam_Parse(query5, value3);
-                }
+                const query4 = `DELETE FROM user_genre WHERE userIdx = ? AND genreIdx = ? AND genreNum = 0`;
+                await pool.queryParam_Parse(query4, value3);
             }
 
             // user에서 vinylNum -1 (& setRank 다시 해주기)
             const query6 = `UPDATE user SET vinylNum = vinylNum - 1 WHERE userIdx = ?`;
             const value6 = [userIdx];
             await pool.queryParam_Parse(query6, value6);
+            setRank(userIdx);
             
         } catch(err) {
             console.log('[DELETEVINYL] err: ' + err);
@@ -403,7 +401,6 @@ async function hasVinyl(userIdx, vinylIdx){
         const value = [userIdx, vinylIdx];
         const rs = await pool.queryParam_Parse(query, value);
         if(rs[0].cnt != 0){
-            // return true;
             throw err;
         }
         else return false;
@@ -427,18 +424,14 @@ async function hasGenre(userIdx, genreIdx){
 };
 
 async function findVinyl(id){
-    // id = 2726;
     try{
-        const query = `SELECT COUNT(*) AS cnt FROM vinyl WHERE id = ?`;
+        const query = `SELECT a.vinylIdx FROM vinyl a LEFT JOIN vinyl b ON a.vinylIdx = b.vinylIdx WHERE b.id = ?`;
         const value = [id];
         const rs = await pool.queryParam_Parse(query, value);
-        if(rs[0].cnt == 0){
+        if(rs.length == 0){
             return 0;
         }
-        const query2 = `SELECT vinylIdx FROM vinyl WHERE id = ?`;
-        const value2 = [id];
-        const rs2 = await pool.queryParam_Parse(query2, value2);
-        return rs2[0].vinylIdx;
+        else return rs[0].vinylIdx;
     } catch(err) {
         console.log('[FUNC - findVinyl] err: ' + err);
         throw err;
@@ -459,17 +452,14 @@ async function findGenreNum(userIdx, genreIdx){
 
 async function setRank(userIdx){
     try{
-        const query = `SELECT CASE WHEN vinylNum < 2 THEN 1
-                                    WHEN vinylNum < 10 THEN 2
-                                    WHEN vinylNum < 50 THEN 3
-                                    WHEN vinylNum < 500 THEN 4
-                                    ELSE 5
-                        END AS rankIdx
-                        FROM user
-                        WHERE userIdx = ?`;
+        const query = `UPDATE user SET rankIdx = CASE WHEN vinylNum < 2 THEN 1
+                    WHEN vinylNum < 10 THEN 2
+                    WHEN vinylNum < 50 THEN 3
+                    WHEN vinylNum < 500 THEN 4
+                    ELSE 5 END
+                    WHERE userIdx = ?`;
         const value = [userIdx];
-        const rs = await pool.queryParam_Parse(query, value);
-        return rs[0].rankIdx;
+        await pool.queryParam_Parse(query, value);
         
     } catch(err){
         console.log('[FUNC - setRank] err: ' + err);

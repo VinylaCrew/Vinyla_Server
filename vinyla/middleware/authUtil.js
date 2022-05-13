@@ -13,16 +13,16 @@ const authUtil = {
             req.decoded = "guest";
         }
         else if (!token) {
-            return res.json(util.fail(statusCode.BAD_REQUEST, resMessage.EMPTY_TOKEN));
+            return res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.EMPTY_TOKEN));
         }
         else if (user == TOKEN_EXPIRED) {
-            return res.json(util.fail(statusCode.UNAUTHORIZED, resMessage.EXPIRED_TOKEN));
+            return res.status(statusCode.UNAUTHORIZED).send(util.fail(statusCode.UNAUTHORIZED, resMessage.EXPIRED_TOKEN));
         }
         else if (user == TOKEN_INVALID) {
-            return res.json(util.fail(statusCode.UNAUTHORIZED, resMessage.INVALID_TOKEN));
+            return res.status(statusCode.UNAUTHORIZED).send(util.fail(statusCode.UNAUTHORIZED, resMessage.INVALID_TOKEN));
         }
         else if ((await user).valueOf(0).idx == undefined) {
-            return res.json(util.fail(statusCode.UNAUTHORIZED, resMessage.INVALID_TOKEN));
+            return res.status(statusCode.UNAUTHORIZED).send(util.fail(statusCode.UNAUTHORIZED, resMessage.INVALID_TOKEN));
         }
         else{
             req.decoded = user;

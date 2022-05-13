@@ -158,7 +158,7 @@ const vinyl = {
 
         try{
             let vinyl = await findVinyl(id);
-            // console.log(vinyl);
+            console.log(vinyl);
             let vinylIdx;
 
             // vinyl TB에 없으면
@@ -209,7 +209,7 @@ const vinyl = {
 
                 // user_vinyl에 존재하면 err. 이전에 갖고 있지 않은 바이닐이어야 함.
                 const hasVinylResult = await hasVinyl(userIdx, vinylIdx);
-                if(!hasVinylResult){
+                if(hasVinylResult){
                     throw err;
                 }
 
@@ -321,12 +321,8 @@ const vinyl = {
                 await pool.queryParam_Parse(query3, value3);
 
                 // genreNum = 0이면 row 삭제
-                const query4 = `SELECT genreNum FROM user_genre WHERE userIdx = ? AND genreIdx = ?`;
-                const result4 = await pool.queryParam_Parse(query4, value3);
-                if(result4[0].genreNum == 0){
-                    const query5 = `DELETE FROM user_genre WHERE userIdx = ? AND genreIdx = ?`;
-                    await pool.queryParam_Parse(query5, value3);
-                }
+                const query4 = `DELETE FROM user_genre WHERE userIdx = ? AND genreIdx = ? AND genreNum = 0`;
+                await pool.queryParam_Parse(query4, value3);
             }
 
             // user에서 vinylNum -1 (& setRank 다시 해주기)
@@ -404,7 +400,6 @@ async function hasVinyl(userIdx, vinylIdx){
         const value = [userIdx, vinylIdx];
         const rs = await pool.queryParam_Parse(query, value);
         if(rs[0].cnt != 0){
-            // return true;
             throw err;
         }
         else return false;
@@ -436,16 +431,6 @@ async function findVinyl(id){
             return 0;
         }
         else return rs[0].vinylIdx;
-        // const query = `SELECT COUNT(*) AS cnt FROM vinyl WHERE id = ?`;
-        // const value = [id];
-        // const rs = await pool.queryParam_Parse(query, value);
-        // if(rs[0].cnt == 0){
-        //     return 0;
-        // }
-        // const query2 = `SELECT vinylIdx FROM vinyl WHERE id = ?`;
-        // const value2 = [id];
-        // const rs2 = await pool.queryParam_Parse(query2, value2);
-        // return rs2[0].vinylIdx;
     } catch(err) {
         console.log('[FUNC - findVinyl] err: ' + err);
         throw err;

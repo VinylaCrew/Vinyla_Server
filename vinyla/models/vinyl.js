@@ -52,6 +52,9 @@ const vinyl = {
                 if(elem.type === 'primary'){
                     return true;
                 }
+                else if(elem.type === 'secondary'){
+                    return true;
+                }
             }).uri;
 
             db.tracklist.forEach(elem => {
@@ -158,7 +161,7 @@ const vinyl = {
 
         try{
             let vinyl = await findVinyl(id);
-            console.log(vinyl);
+            // console.log(vinyl);
             let vinylIdx;
 
             // vinyl TB에 없으면

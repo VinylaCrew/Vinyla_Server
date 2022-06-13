@@ -64,5 +64,36 @@ module.exports = {
         }
         const isMember = await UserModel.isMember(fuid, sns);
         return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.MEMBER_CHECK_SUCCESS, {isMember: isMember}));
+    },
+
+    myPage: async(req, res) => {
+        const userIdx = (await req.decoded).valueOf(0).idx;
+        if(!userIdx){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
+        }
+        try{
+            const myPageResult = await UserModel.myPage(userIdx);
+            return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.MYPAGE_SUCCESS, myPageResult));
+        } catch(err){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.MYPAGE_FAIL));
+        }
+    },
+
+    changeNotice: async(req, res) => {
+        const userIdx = (await req.decoded).valueOf(0).idx;
+        const {subscribeAgreed} = req.body
+        if(!userIdx){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NO_USER));
+        }
+        if(subscribeAgreed == null){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.NULL_VALUE));
+        }
+        try{
+            await UserModel.changeNotice(userIdx, subscribeAgreed);
+            return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.CHANGE_NOTICE_SUCCESS));
+        } catch(err){
+            return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.CHANGE_NOTICE_FAIL));
+        }
+        
     }
 };

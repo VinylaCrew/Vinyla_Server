@@ -20,6 +20,9 @@ module.exports = {
     MYPAGE_SUCCESS: "마이페이지 조회 성공",
     MYPAGE_FAIL: "마이페이지 조회 실패",
 
+    CHANGE_NOTICE_SUCCESS: "마케팅 수신동의 변경 성공",
+    CHANGE_NOTICE_FAIL: "마케팅 수신동의 변경 실패",
+
     // Vinyl
     DISCOGS_SEARCH_SUCCESS: "바이닐 검색 성공",
     DISCOGS_SEARCH_FAIL: "바이닐 검색 실패",

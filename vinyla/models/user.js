@@ -60,6 +60,29 @@ const user = {
             console.log('[ISMEMBER] err: ' + err);
             throw err;
         }
+    },
+
+    myPage : async(userIdx) => {
+        try{
+            const sql = `SELECT sns, nickname, subscribeAgreed FROM user WHERE userIdx = ?`;
+            const value = [userIdx];
+            const rs = await pool.queryParam_Parse(sql, value);
+            return rs[0];
+        } catch (err) {
+            console.log('[MYPAGE] err: ' + err);
+            throw err;
+        }
+    },
+
+    changeNotice : async(userIdx, subscribeAgreed) => {
+        try{
+            const sql = `UPDATE user SET subscribeAgreed = ? WHERE userIdx = ?`;
+            const value = [subscribeAgreed, userIdx];
+            await pool.queryParam_Parse(sql, value);
+        } catch(err){
+            console.log('[CHANGENOTICE] err: ' + err);
+            throw err;
+        }
     }
 };
 

@@ -277,7 +277,8 @@ const vinyl = {
         try{
             const query = `SELECT vinyl.vinylIdx, title, imageUrl, artist, id, myVinyl
                            FROM user_vinyl JOIN vinyl
-                           WHERE user_vinyl.vinylIdx = vinyl.vinylIdx AND user_vinyl.userIdx = ?`;
+                           WHERE user_vinyl.vinylIdx = vinyl.vinylIdx AND user_vinyl.userIdx = ?
+                           ORDER BY diggedAt`;
             const value = [userIdx];
             const rs = await pool.queryParam_Parse(query, value);
             const result = {};

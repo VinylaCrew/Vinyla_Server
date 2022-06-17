@@ -407,11 +407,12 @@ async function hasVinyl(userIdx, vinylIdx){
         const value = [userIdx, vinylIdx];
         const rs = await pool.queryParam_Parse(query, value);
         if(rs[0].cnt != 0){
-            throw err;
+            throw new Error()
         }
         else return false;
     } catch(err){
         console.log('[FUNC - hasVinyl] err: ' + err);
+        err.code = 409
         throw err;
     }
 };

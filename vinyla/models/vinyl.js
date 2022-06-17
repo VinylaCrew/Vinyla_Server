@@ -47,15 +47,17 @@ const vinyl = {
             const db = await dis.database().getRelease(id);
             let result = [];
             let tl = [];
-
-            const primaryImg = db.images.find(elem => {
-                if(elem.type === 'primary'){
-                    return true;
-                }
-                else if(elem.type === 'secondary'){
-                    return true;
-                }
-            }).uri;
+            let primaryImg = null;
+            if(db.images){
+                primaryImg = db.images.find(elem => {
+                    if(elem.type === 'primary'){
+                        return true;
+                    }
+                    else if(elem.type === 'secondary'){
+                        return true;
+                    }
+                }).uri;
+            }
 
             db.tracklist.forEach(elem => {
                 tl.push(elem.title);
@@ -275,7 +277,8 @@ const vinyl = {
         try{
             const query = `SELECT vinyl.vinylIdx, title, imageUrl, artist, id, myVinyl
                            FROM user_vinyl JOIN vinyl
-                           WHERE user_vinyl.vinylIdx = vinyl.vinylIdx AND user_vinyl.userIdx = ?`;
+                           WHERE user_vinyl.vinylIdx = vinyl.vinylIdx AND user_vinyl.userIdx = ?
+                           ORDER BY diggedAt`;
             const value = [userIdx];
             const rs = await pool.queryParam_Parse(query, value);
             const result = {};
@@ -404,11 +407,12 @@ async function hasVinyl(userIdx, vinylIdx){
         const value = [userIdx, vinylIdx];
         const rs = await pool.queryParam_Parse(query, value);
         if(rs[0].cnt != 0){
-            throw err;
+            throw new Error()
         }
         else return false;
     } catch(err){
         console.log('[FUNC - hasVinyl] err: ' + err);
+        err.code = 409
         throw err;
     }
 };

@@ -63,6 +63,9 @@ module.exports = {
             const saveResult = await VinylModel.save(newVinylInfo, userIdx);
             return await res.status(statusCode.OK).send(util.success(statusCode.OK, resMessage.VINYL_SAVE_SUCCESS, {vinylIdx: saveResult}));
         } catch(err) {
+            if(err.code == 409){
+                return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.CONFLICT, resMessage.VINYL_ALREADY));
+            }
             return await res.status(statusCode.BAD_REQUEST).send(util.fail(statusCode.BAD_REQUEST, resMessage.VINYL_SAVE_FAIL));
         }
 

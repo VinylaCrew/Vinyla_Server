@@ -47,15 +47,17 @@ const vinyl = {
             const db = await dis.database().getRelease(id);
             let result = [];
             let tl = [];
-
-            const primaryImg = db.images.find(elem => {
-                if(elem.type === 'primary'){
-                    return true;
-                }
-                else if(elem.type === 'secondary'){
-                    return true;
-                }
-            }).uri;
+            let primaryImg = null;
+            if(db.images){
+                primaryImg = db.images.find(elem => {
+                    if(elem.type === 'primary'){
+                        return true;
+                    }
+                    else if(elem.type === 'secondary'){
+                        return true;
+                    }
+                }).uri;
+            }
 
             db.tracklist.forEach(elem => {
                 tl.push(elem.title);

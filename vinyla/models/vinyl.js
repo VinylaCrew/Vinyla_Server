@@ -70,6 +70,7 @@ const vinyl = {
                 "title": db.title,
                 "artist": db.artists[0].name,
                 "image": primaryImg,
+                "thumb": db.thumb,
                 "year": db.year,
                 "genres": db.genres,
                 "tracklist": tl
@@ -154,6 +155,7 @@ const vinyl = {
             title,
             artist,
             image,
+            thumb,
             year,
             genres,
             tracklist,
@@ -169,8 +171,8 @@ const vinyl = {
             // vinyl TB에 없으면
             if(vinyl == 0){
                 // vinyl에 새로 추가
-                const query = `INSERT INTO vinyl(title, imageUrl, artist, rate, rateCount, id, year) VALUES(?, ?, ?, ?, ?, ?, ?)`;
-                const values = [title, image, artist, rate, 1, id, year];
+                const query = `INSERT INTO vinyl(title, imageUrl, thumb, artist, rate, rateCount, id, year) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`;
+                const values = [title, image, thumb, artist, rate, 1, id, year];
                 const rs = await pool.queryParam_Parse(query, values);
                 vinylIdx = rs.insertId;
                 
@@ -275,7 +277,7 @@ const vinyl = {
 
     my: async(userIdx) => {
         try{
-            const query = `SELECT vinyl.vinylIdx, title, imageUrl, artist, id, myVinyl
+            const query = `SELECT vinyl.vinylIdx, title, imageUrl, thumb, artist, id, myVinyl
                            FROM user_vinyl JOIN vinyl
                            WHERE user_vinyl.vinylIdx = vinyl.vinylIdx AND user_vinyl.userIdx = ?
                            ORDER BY diggedAt`;

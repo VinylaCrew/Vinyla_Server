@@ -286,8 +286,11 @@ const vinyl = {
             const result = {};
             result.userIdx = userIdx;
             let myVinyls = [];
+            let i = 1
             Promise.all(rs.map(async(elem) => {
+                elem.timestampIdx = i;
                 myVinyls.push(elem);
+                i += 1;
             }));
             result.myVinyls = myVinyls;
             return result;
